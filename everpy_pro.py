@@ -41,7 +41,7 @@ class EverPyPro(object):
                                  usually "C:\Program Files (x86)\Evernote\Evernote\ENScript.exe"
         """
         super(EverPyPro, self).__init__()
-        self.client = EvernoteClient(token=token)
+        self.client = EvernoteClient(token=token, sandbox=False)
         self.everpy_extras = EverPyExtras(path_to_enscript)
         self.user_store = self.client.get_user_store()
         self.note_store = self.client.get_note_store()
