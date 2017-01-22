@@ -16,7 +16,11 @@ You need to get a developer token from Evernote. The first time you run the app 
 *[Get your key here](https://www.evernote.com/api/DeveloperToken.action).*
 
 ##Usage
-For now run
+####Find and replace example
+
+    python everpy_cli.py findandreplace -find "123 fake st" -replace "545 new st" -query "notebook:Personal"
+
+For more info run
 
     python everpy_cli.py -h
     
