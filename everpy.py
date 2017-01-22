@@ -1,9 +1,10 @@
-"""Python helper for Evernote."""
+"""Python wrapper for Evernote's ENScript.exe.
+
+Only tested on Windows.
+"""
 from __future__ import print_function
-import os
 import sys
 import subprocess
-import tempfile
 
 DEBUG = False
 
@@ -66,8 +67,7 @@ class EverPy(object):
             arr += ["/b", notebook_name]
         else:
             sys.exit("Unsupport notebook type {0}".format(notebook_type))
-
-        pass
+        return arr
 
     def call_enscript(self, additional_args):
         """
@@ -120,7 +120,7 @@ class EverPy(object):
                     business - business notebook (For business users)
         """
         en_args = ["createNotebook", "/n", notebook_name, '/t', notebook_type]
-        self.call_enscript(en_args)
+        return self.call_enscript(en_args)
 
     def create_note_from_file(self, file_with_notes, notebook_type="personal", notebook_name=None, title=None,
                               tags=None, create_date=None, file_attachments=None):
@@ -144,6 +144,7 @@ class EverPy(object):
         en_args = ["createNote", "/s", file_with_notes]
         if notebook_name:
             en_args = self.append_notebook_type(en_args, notebook_type, notebook_name)
+        print(en_args)
         if title:
             en_args += ["/i", title]
         if tags:
@@ -156,37 +157,7 @@ class EverPy(object):
             for attachment in file_attachments:
                 en_args += ["/a", attachment]
 
-        self.call_enscript(en_args)
-
-    def create_note_from_content(self, content, notebook_type="personal", notebook_name=None, title=None,
-                                 tags=None, create_date=None, file_attachments=None):
-        """
-        Create note from a python object.
-
-        @param content object with string method
-        @param notebook_type (optional) types are
-                    personal - what you most likely want to user(default)
-                    business - specify business notebook
-        @param notebook_name (optional) name of notebook to store note.
-                    If does not exist, lazy create. If omitted, use default notebook.
-        @param title (optional) specifies note title.
-                    If omitted, note title will be generated automatically.
-        @param tags (optional) specify list of tags to tag note with.
-                    If tag does not exist, lazy create it.
-        @param create_date (optional) note creation date/time. { "YYYY/MM/DD hh:mm:ss" | filetime }.
-                    If omitted, use current time.
-        @param file_attachments list of file attachments.
-        """
-        if not title:
-            title = self.get_title_from_content(content)
-
-        f = tempfile.NamedTemporaryFile(suffix=".txt", delete=False)
-        f.write(content)
-        f.close()
-
-        self.create_note_from_file(f.name, notebook_type=notebook_type, notebook_name=notebook_name, title=title,
-                                   tags=tags, create_date=create_date, file_attachments=file_attachments)
-        os.remove(f.name)
+        return self.call_enscript(en_args)
 
     def import_notes(self, enex_file, notebook_type="personal", notebook_name=None):
         """
@@ -202,7 +173,7 @@ class EverPy(object):
         en_args = ["importNotes", "/s", enex_file]
         if notebook_name:
             en_args = self.append_notebook_type(en_args, notebook_type, notebook_name)
-        self.call_enscript(en_args)
+        return self.call_enscript(en_args)
 
     def export_notes(self, query, export_file, query_scope="personal"):
         """

@@ -2,31 +2,36 @@
 
 To use this you need a developer token until OAuth is implemented.
 Get one here - https://www.evernote.com/api/DeveloperToken.action
+
+
+
+Tests
+----------
+Everpy
+python everpy_cli.py search -query "any:"
+python everpy_cli.py export -query "intitle:\"En Scratch Paper\"" -file test.enex -scope personal
+
+Everpy extras
+python everpy_cli.py managenotes
+python everpy_cli.py backup -dest "C:\Users\Paul\Desktop"
+
+Everpy pro
+python everpy_cli.py findandreplace -find "(?i)(evernote)" -replace "Evernote" -query "intitle:test"
+python everpy_cli.py deletenotebook -name "deletemebook"
 """
 import argparse
-import keyring
-import getpass
 
-import everpy_pro
+from everpy_pro import EverPyPro
+import everpy_utilities
 
 PATH_TO_ENSCRIPT = "C:\Program Files (x86)\Evernote\Evernote\ENScript.exe"
 
 
-def get_cmd_line_args():
-    """Parse cmd line args into tuple."""
-    parser = argparse.ArgumentParser(
-        prog='everpy.py',
-        description="A series of Evernote helper tools from command line"
-    )
-
-    # Create the a subparser
-    subparsers = parser.add_subparsers(
-        help="Choose between one of the following:",
-        dest="option"
-    )
+def add_enscript_cmds(sp):
+    """Add the Everpy commands."""
     ####################################################
     # create the parser for the "search" command
-    search_parser = subparsers.add_parser(
+    search_parser = sp.add_parser(
         'search',
         help='Run a search and open Evernote client with results'
     )
@@ -39,16 +44,67 @@ def get_cmd_line_args():
     ####################################################
 
     ####################################################
+    # create the parser for the "exportnotes" command
+    exp_parser = sp.add_parser(
+        'export',
+        help='Export notes from a specified query'
+    )
+    exp_parser.add_argument(
+        "-query",
+        dest="query",
+        required=True,
+        help="Evernote search query"
+    )
+    exp_parser.add_argument(
+        "-file",
+        dest='export_file',
+        required=True,
+        help="Path to export .enex file"
+    )
+    exp_parser.add_argument(
+        "-scope",
+        dest='scope',
+        default="personal",
+        help="Use `business` to also search business notebooks. (default:`personal`)"
+    )
+    ####################################################
+
+
+def add_everpy_extra_cmds(sp):
+    """Add the Everpy Extra commands."""
+    ####################################################
+    # create the parser for the "backup" command
+    bkp_parser = sp.add_parser(
+        'backup',
+        help='Do a proper backup of your notes'
+    )
+    bkp_parser.add_argument(
+        "-dest",
+        dest="dest",
+        required=True,
+        help="Path to save evernote export folder"
+    )
+    bkp_parser.add_argument(
+        "-keep",
+        dest='keep',
+        default="5,",
+        help="How many copies to keep (default:5)"
+    )
+    ####################################################
+
+    ####################################################
     # create the parser for the "managenotes" command
-    subparsers.add_parser(
+    sp.add_parser(
         'managenotes',
         help='Open the Evernote Client with a list of notes to manage.'
     )
     ####################################################
 
+
+def add_everpypro_cmd(sp):
     ####################################################
     # create the parser for the "findandreplace" command
-    fnr_parser = subparsers.add_parser(
+    fnr_parser = sp.add_parser(
         'findandreplace',
         help='Find and replace across notes'
     )
@@ -73,54 +129,8 @@ def get_cmd_line_args():
     ####################################################
 
     ####################################################
-    # create the parser for the "exportnotes" command
-    exp_parser = subparsers.add_parser(
-        'export',
-        help='Export notes from a specified query'
-    )
-    exp_parser.add_argument(
-        "-query",
-        dest="query",
-        required=True,
-        help="Evernote search query"
-    )
-    exp_parser.add_argument(
-        "-file",
-        dest='export_file',
-        required=True,
-        help="Path to export .enex file"
-    )
-    exp_parser.add_argument(
-        "-scope",
-        dest='scope',
-        default="personal",
-        help="Use `business` to also search business notebooks. (default:`personal`)"
-    )
-    ####################################################
-
-    ####################################################
-    # create the parser for the "backup" command
-    bkp_parser = subparsers.add_parser(
-        'backup',
-        help='Do a proper backup of your notes'
-    )
-    bkp_parser.add_argument(
-        "-dest",
-        dest="dest",
-        required=True,
-        help="Path to save evernote export folder"
-    )
-    bkp_parser.add_argument(
-        "-keep",
-        dest='keep',
-        default="5,",
-        help="How many copies to keep (default:5)"
-    )
-    ####################################################
-
-    ####################################################
     # create the parser for the "deletenotebook" command
-    del_parser = subparsers.add_parser(
+    del_parser = sp.add_parser(
         'deletenotebook',
         help='Delete notebook permanently by name.'
     )
@@ -132,75 +142,84 @@ def get_cmd_line_args():
     )
     ####################################################
 
-    return(parser.parse_args())
 
-
-def refresh_token():
-    """Set new token."""
-    keyring.set_password("everpy", "everpy", getpass.getpass("Password: "))
-    return keyring.get_password("everpy", "everpy")
-
-
-def get_token():
-    """Get a token."""
-    dev_token = keyring.get_password("everpy", "everpy")
-    if not dev_token:
-        dev_token = refresh_token()
-    return dev_token
-
-
-# Script execution starts here
-
-# Get the dev token
-dev_token = get_token()
-
-cmd_line_args = get_cmd_line_args()
-
-try:
-    my_evernote = everpy_pro.EverPyPro(dev_token, PATH_TO_ENSCRIPT)
-except:
-    refresh_token()
-    my_evernote = everpy_pro.EverPyPro(dev_token, PATH_TO_ENSCRIPT)
-
-if cmd_line_args.option == "backup":
-    my_evernote.everpy_extras.proper_backup(
-        cmd_line_args.dest,
-        iterations=cmd_line_args.keep
+def get_cmd_line_args():
+    """Parse cmd line args into tuple."""
+    parser = argparse.ArgumentParser(
+        prog='everpy.py',
+        description="A series of Evernote helper tools from command line"
     )
-elif cmd_line_args.option == "findandreplace":
-    my_evernote.find_and_replace(
-        cmd_line_args.find,
-        cmd_line_args.repl,
-        cmd_line_args.query
+    # Create the a subparser
+    main_subparser = parser.add_subparsers(
+        help="Choose between one of the following:",
+        dest="option"
     )
-elif cmd_line_args.option == "managenotes":
-    out, err = my_evernote.everpy_extras.get_notes_to_manage()
-    if out.strip():
-        print(out)
-    if err:
-        print(err.strip())
-elif cmd_line_args.option == "search":
-    out, err = my_evernote.everpy_extras.search_notes(
-        query=cmd_line_args.query
-    )
-    if out.strip():
-        print(out)
-    if err:
-        print(err.strip())
-elif cmd_line_args.option == "export":
-    out, err = my_evernote.everpy_extras.export_notes(
-        query=cmd_line_args.query,
-        export_file=cmd_line_args.export_file,
-        query_scope=cmd_line_args.scope
-    )
-    if out.strip():
-        print(out)
-    if err:
-        print(err.strip())
-elif cmd_line_args.option == "deletenotebook":
-    if my_evernote.delete_notebook(
-        name=cmd_line_args.name
-    ):
-        print("Success")
-else:
-    pass
+    add_enscript_cmds(main_subparser)
+    add_everpy_extra_cmds(main_subparser)
+    add_everpypro_cmd(main_subparser)
+    return (parser.parse_args())
+
+
+def main():
+    """Start of script."""
+    # Get a dev token
+    dev_token = everpy_utilities.get_token()
+    # Parse args
+    cmd_line_args = get_cmd_line_args()
+
+    try:
+        my_evernote = EverPyPro(dev_token, PATH_TO_ENSCRIPT)
+    except:
+        everpy_utilities.refresh_token()
+        my_evernote = EverPyPro(dev_token, PATH_TO_ENSCRIPT)
+
+    ########################################################
+    #              Deal with Everpy Commands               #
+    if cmd_line_args.option == "search":
+        out, err = my_evernote.search_notes(
+            query=cmd_line_args.query
+        )
+        if out.strip():
+            print(out)
+        if err:
+            print(err.strip())
+    elif cmd_line_args.option == "export":
+        out, err = my_evernote.export_notes(
+            query=cmd_line_args.query,
+            export_file=cmd_line_args.export_file,
+            query_scope=cmd_line_args.scope
+        )
+        if out.strip():
+            print(out)
+        if err:
+            print(err.strip())
+    ########################################################
+    #            Deal with Everpy Extra Commands           #
+    elif cmd_line_args.option == "backup":
+        my_evernote.proper_backup(
+            cmd_line_args.dest,
+            iterations=cmd_line_args.keep
+        )
+    elif cmd_line_args.option == "managenotes":
+        out, err = my_evernote.get_notes_to_manage()
+        if out.strip():
+            print(out)
+        if err:
+            print(err.strip())
+    ########################################################
+    #            Deal with Everpy Pro Commands           #
+    elif cmd_line_args.option == "deletenotebook":
+        if my_evernote.delete_notebook(
+            name=cmd_line_args.name
+        ):
+            print("Success")
+    elif cmd_line_args.option == "findandreplace":
+        my_evernote.find_and_replace(
+            cmd_line_args.find,
+            cmd_line_args.repl,
+            cmd_line_args.query
+        )
+    else:
+        pass
+if __name__ == '__main__':
+    main()

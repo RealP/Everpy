@@ -7,7 +7,9 @@ Some ideas are:
     3. Get notes to tag
     4. Automated backup
 """
-from everpy import EverPy, os
+import tempfile
+import os
+from everpy import EverPy
 from datetime import datetime
 
 
@@ -88,14 +90,14 @@ class EverPyExtras(EverPy):
             "todo:false",
         ]
         search_query = "any: " + self._build_query_from_items(untagged_notes_query, crappy_note_title_query)
-        EverPy.search_notes(self, search_query)
+        return EverPy.search_notes(self, search_query)
 
     def proper_backup(self, backup_location, iterations=5):
         """
         Do a proper backup of all notes retaining Notebook names.
 
         @param backup_location Path to save backup
-        @param iterations how many backup iterations to keep (default:5)
+        @param iterations how many backup iterations to keep (default:5) (not currently being used)
 
         @todo This should also retain stack information
         """
@@ -103,7 +105,7 @@ class EverPyExtras(EverPy):
             backup_location += os.sep
         # Get a list of all notebooks
         notebooks = EverPy.get_notebooks(self)
-        # Create a folder with timestamp
+        # Create a folder with time-stamp
         ts = "{:%m-%d-%Y__%H-%M-%S}".format(datetime.now())
         backup_folder = "{0}enotebk__{1}".format(backup_location, ts)
         os.mkdir(backup_folder)
@@ -132,3 +134,33 @@ class EverPyExtras(EverPy):
         backup_file = backup_location + os.sep + file_name
         roll_files(backup_file, iterations)
         EverPy.export_notes(self, query, backup_file)
+
+    def create_note_from_content(self, content, notebook_type="personal", notebook_name=None, title=None,
+                                 tags=None, create_date=None, file_attachments=None):
+        """
+        Create note from a python object.
+
+        @param content object with string method
+        @param notebook_type (optional) types are
+                    personal - what you most likely want to user(default)
+                    business - specify business notebook
+        @param notebook_name (optional) name of notebook to store note.
+                    If does not exist, lazy create. If omitted, use default notebook.
+        @param title (optional) specifies note title.
+                    If omitted, note title will be generated automatically.
+        @param tags (optional) specify list of tags to tag note with.
+                    If tag does not exist, lazy create it.
+        @param create_date (optional) note creation date/time. { "YYYY/MM/DD hh:mm:ss" | filetime }.
+                    If omitted, use current time.
+        @param file_attachments list of file attachments.
+        """
+        if not title:
+            title = self.get_title_from_content(content)
+
+        f = tempfile.NamedTemporaryFile(suffix=".txt", delete=False)
+        f.write(content)
+        f.close()
+
+        self.create_note_from_file(f.name, notebook_type=notebook_type, notebook_name=notebook_name, title=title,
+                                   tags=tags, create_date=create_date, file_attachments=file_attachments)
+        os.remove(f.name)

@@ -22,27 +22,29 @@ def debug(msg):
         print(msg)
 
 
-class EverPyPro(object):
+class EverPyPro(EverPyExtras):
     """Python helper for evernote.
 
     Requires more than just ENScript.
     It requires user allow this application to modify data using OAuth
     """
 
-    def __init__(self, token, path_to_enscript):
+    def __init__(self, token, path_to_enscript, username=None, password=None):
         r"""
         Initialize EverPyPro object.
 
         If both database file name and user name are not specified, last login name is used and
         if there is none, USERNAME environment variable value is used as a user name.
 
-        @param token OAuth token for authentication
+        @param token developer token for authentication
         @param path_to_enscript path the evernotes ENScript.exe
                                  usually "C:\Program Files (x86)\Evernote\Evernote\ENScript.exe"
+        @param username if not using the default account you'll need to provide a username
+        @param password if not using the default account you'll need to provide a password
         """
-        super(EverPyPro, self).__init__()
-        self.client = EvernoteClient(token=token, sandbox=False)
-        self.everpy_extras = EverPyExtras(path_to_enscript)
+        super(EverPyPro, self).__init__(path_to_enscript, username, password)
+        # self.client = EvernoteClient(token=token, sandbox=False)
+        self.client = EvernoteClient(token=token)
         self.user_store = self.client.get_user_store()
         self.note_store = self.client.get_note_store()
 
@@ -97,7 +99,7 @@ class EverPyPro(object):
         for note in result_list.notes:
             new_note = self.note_store.getNote(note.guid, withContent, withResoucesData, withResoucesRecognition, withResoucesAlternateData)
             # Make a soup from the HTML part of the note
-            original_content = re.search("<en-note>(.+)<\/en-note>", new_note.content).group(1)
+            original_content = re.search("<en-note>((.|\n)+)<\/en-note>", new_note.content).group(1)
             soup = BeautifulSoup(original_content, "html.parser")
 
             original_matches = soup.findAll(text=re.compile(find_string))
