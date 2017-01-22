@@ -43,8 +43,7 @@ class EverPyPro(EverPyExtras):
         @param password if not using the default account you'll need to provide a password
         """
         super(EverPyPro, self).__init__(path_to_enscript, username, password)
-        # self.client = EvernoteClient(token=token, sandbox=False)
-        self.client = EvernoteClient(token=token)
+        self.client = EvernoteClient(token=token, sandbox=False)
         self.user_store = self.client.get_user_store()
         self.note_store = self.client.get_note_store()
 
