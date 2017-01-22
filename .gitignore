@@ -1,0 +1,6 @@
+Tests/
+en_env/
+Docs/
+open_scratchpaper.py
+Doxyfile
+*.pyc
