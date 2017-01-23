@@ -1,6 +1,10 @@
 """Python helper for Evernote using Evernote API and EnScript."""
 from __future__ import print_function
 import re
+import os
+import binascii
+import hashlib
+from mimetypes import MimeTypes
 
 import evernote.edam.type.ttypes as Types
 from evernote.edam.notestore.ttypes import NoteFilter, NotesMetadataResultSpec
@@ -47,7 +51,12 @@ class EverPyPro(EverPyExtras):
         self.user_store = self.client.get_user_store()
         self.note_store = self.client.get_note_store()
 
+        self.note_header = "<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE en-note SYSTEM 'http://xml.evernote.com/pub/enml2.dtd'><en-note>"
+        self.note_footer = "</en-note>"
+
         self.note_book_dict = {}
+        self.mimer = MimeTypes()
+        self.learn_notebooks()
 
     def learn_notebooks(self):
         """
@@ -125,11 +134,13 @@ class EverPyPro(EverPyExtras):
             new_note.content = new_note.content.replace(original_content, str(soup))
             self.note_store.updateNote(new_note)
 
-    def create_notebook(self, notebook_name):
+    def create_notebook_pro(self, notebook_name):
         """
         Create a notebook.
 
         @param notebook_name a string name for the notebook
+
+        @todo there is a lot more that can be done here
         """
         n_data = Types.Notebook()
         n_data.name = notebook_name
@@ -158,17 +169,73 @@ class EverPyPro(EverPyExtras):
         print("Deleted notebook update_sequence_num = {0}".format(update_sequence_num))
         return True
 
-    def tag_notes_with_season(self):
-        """
-        Tag notes based on season of the year.
+    def get_resource(self, res):
+        """Get a resource object to attach to note.
 
-        Implementation details:
-            search for notes between dates such as 12-01-1972 - 04-2-1973  then tag those notes as winter or whatever
-
-        @todo This is really just an idea of what can be done
+        @param res resource or attachment to attach.
         """
-        # spring_begin_day = "0301"
-        # summer_begin_day = "0601"
-        # fall_begin_day = "1001"
-        # winter_begin_day = "1201"
-        pass
+        resource_data = open(res, "rb").read()
+        md5 = hashlib.md5()
+        md5.update(resource_data)
+        hash_val = md5.digest()
+        hash_hex = binascii.hexlify(hash_val)
+
+        data = Types.Data()
+        data.size = len(resource_data)
+        data.bodyHash = hash_hex
+        data.body = resource_data
+
+        resource_attributes = Types.ResourceAttributes()
+        resource_attributes.fileName = res
+        resource_attributes.sourceURL = "file://" + os.path.abspath(res)
+
+        resource = Types.Resource()
+        resource.attributes = resource_attributes
+        mime, encoding = self.mimer.guess_type(res)
+        if not mime:
+            mime = "application/octet-stream"
+        resource.mime = mime
+        resource.data = data
+
+        return resource
+
+    def create_note(self, content, title=None, notebook=None, tags=[], attachments=[]):
+        """Create a note and send to server."""
+        note = Types.Note()
+        note_body = self.note_header + content
+        if title:
+            note.title = title
+        if notebook:
+            note.notebookGuid = self.note_book_dict[notebook]["guid"]
+        if tags:
+            note.tagNames = tags
+        if attachments:
+            resources = [self.get_resource(a) for a in attachments]
+            # Add Resource objects to note body
+            note_body += "<br />" * 2
+            note.resources = resources
+            for resource in resources:
+                note_body += "Attachment with hash {hash}: <br /><en-media type=\"{mime}\" hash=\"{hash}\" /><br />".format(
+                    hash=resource.data.bodyHash,
+                    mime=resource.mime
+                )
+
+        note_body += self.note_footer
+        note.content = note_body
+        self.note_store.createNote(note)
+
+    def simple_template(self):
+        """Create a simple note template.
+
+        This is experimental for now.
+        It should create a template then open that template for viewing
+        """
+        template = open("Templates/simple_sections.txt", "r").read()
+        i = 1
+        note_content = ""
+        section_title = raw_input("Section {0} title (q:quit)".format(i))
+        while(section_title != "q"):
+            note_content += template.replace("{{sectiontitle}}", section_title)
+            i += 1
+            section_title = raw_input("Section {0} title (q:quit)".format(i))
+        self.create_note(note_content)

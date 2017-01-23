@@ -1,3 +1,5 @@
+"""Some examples of how to use modules."""
+
 # from everpy_extras import EverPyExtras
 from everpy_pro import EverPyPro
 import everpy_utilities
@@ -35,7 +37,13 @@ def main():
     # or
     # my_evernote.search_notes("stack:Work intitle:\"new employee\"")
 
-    # Tests.
+    # Creating a note from an hmtl template
+    # my_evernote.create_note(open("template.html", "r").read(), title="Template", notebook="_INBOX", tags=["everpy"], attachments=["template.html"])
+
+    ##############################
+    # VVVV Tests may not work VVVV.
+    # my_evernote.simple_template()
+    # my_evernote.create_textnote_from_file("template.html", notebook_name="_INBOX")
     # my_evernote.learn_notebooks()
     # print(my_evernote.note_book_dict)
 if __name__ == '__main__':

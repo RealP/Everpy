@@ -122,10 +122,12 @@ class EverPy(object):
         en_args = ["createNotebook", "/n", notebook_name, '/t', notebook_type]
         return self.call_enscript(en_args)
 
-    def create_note_from_file(self, file_with_notes, notebook_type="personal", notebook_name=None, title=None,
-                              tags=None, create_date=None, file_attachments=None):
+    def create_textnote_from_file(self, file_with_notes, notebook_type="personal", notebook_name=None,
+                                  title=None, tags=[], create_date=None, file_attachments=[]):
         """
-        Create note from a file.
+        Create textnote from a file.
+
+        File contents will be added to the note as plain text
 
         @param file_with_notes path to file containing the plain text note contents
         @param notebook_type (optional) types are

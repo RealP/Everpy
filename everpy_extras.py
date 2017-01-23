@@ -136,7 +136,7 @@ class EverPyExtras(EverPy):
         EverPy.export_notes(self, query, backup_file)
 
     def create_note_from_content(self, content, notebook_type="personal", notebook_name=None, title=None,
-                                 tags=None, create_date=None, file_attachments=None):
+                                 tags=[], create_date=None, file_attachments=[]):
         """
         Create note from a python object.
 
@@ -161,6 +161,6 @@ class EverPyExtras(EverPy):
         f.write(content)
         f.close()
 
-        self.create_note_from_file(f.name, notebook_type=notebook_type, notebook_name=notebook_name, title=title,
+        self.create_textnote_from_file(f.name, notebook_type=notebook_type, notebook_name=notebook_name, title=title,
                                    tags=tags, create_date=create_date, file_attachments=file_attachments)
         os.remove(f.name)
