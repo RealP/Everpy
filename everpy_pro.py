@@ -11,6 +11,7 @@ from evernote.edam.notestore.ttypes import NoteFilter, NotesMetadataResultSpec
 from evernote.api.client import EvernoteClient
 from bs4 import BeautifulSoup
 
+import everpy_utilities
 from everpy_extras import EverPyExtras
 
 DEBUG = False
@@ -239,3 +240,48 @@ class EverPyPro(EverPyExtras):
             i += 1
             section_title = raw_input("Section {0} title (q:quit)".format(i))
         self.create_note(note_content)
+
+    def simple_template2(self):
+        """Create a simple note template.
+
+        This is experimental for now.
+        It should create a template then open that template for viewing
+        """
+        template = open("Templates/simple_sections.txt", "r").read()
+        template_tokens = everpy_utilities.get_template_tokens(template)
+
+        new_tokens = []
+        another = ""
+        while(another != "q"):
+            # Why do i need to do this strange stuff with the dict to get it working?
+            temp_dict = dict()
+            for token, token_content in template_tokens.iteritems():
+                temp_dict[token] = {}
+                temp_dict[token]["name"] = token_content["name"]
+                temp_dict[token]["val"] = raw_input("{0}: ".format(token_content["name"]))
+            new_tokens.append(temp_dict)
+            another = raw_input("Another (q:quit)")
+
+        content = self.create_content_with_tokens(template, new_tokens)
+        print(content)
+        self.create_note(content, title="Test template")
+        # print(content)
+        # section_title = raw_input("Section {0} title (q:quit)".format(i))
+        # while(section_title != "q"):
+        #     note_content += template.replace("{{sectiontitle}}", section_title)
+        #     i += 1
+        #     section_title = raw_input("Section {0} title (q:quit)".format(i))
+
+    def create_content_with_tokens(self, template, tokens):
+        content = ""
+        for token in tokens:
+            temp_content = template
+            print(token)
+            for key, val in token.iteritems():
+                findval = "${" + key
+                if val["name"]:
+                    findval += ":" + val["name"]
+                findval += "}"
+                temp_content = temp_content.replace(findval, val["val"])
+            content += temp_content
+        return content

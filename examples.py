@@ -42,7 +42,7 @@ def main():
 
     ##############################
     # VVVV Tests may not work VVVV.
-    # my_evernote.simple_template()
+    my_evernote.simple_template2()
     # my_evernote.create_textnote_from_file("template.html", notebook_name="_INBOX")
     # my_evernote.learn_notebooks()
     # print(my_evernote.note_book_dict)
