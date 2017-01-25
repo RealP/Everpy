@@ -38,11 +38,12 @@ def main():
     # my_evernote.search_notes("stack:Work intitle:\"new employee\"")
 
     # Creating a note from an hmtl template
-    # my_evernote.create_note(open("template.html", "r").read(), title="Template", notebook="_INBOX", tags=["everpy"], attachments=["template.html"])
+    # my_evernote.create_note(open("Templates/testnote.html", "r").read(), title="testnote", notebook="_INBOX", tags=["everpy"], attachments=["Templates/testnote.html"])
 
     ##############################
     # VVVV Tests may not work VVVV.
-    my_evernote.simple_template2()
+    # my_evernote.create_template("Templates/simple_sections.txt")
+    my_evernote.create_template("Templates/card_template.txt")
     # my_evernote.create_textnote_from_file("template.html", notebook_name="_INBOX")
     # my_evernote.learn_notebooks()
     # print(my_evernote.note_book_dict)

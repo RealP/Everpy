@@ -200,18 +200,31 @@ class EverPyPro(EverPyExtras):
 
         return resource
 
-    def create_note(self, content, title=None, notebook=None, tags=[], attachments=[]):
-        """Create a note and send to server."""
+    def create_note(self, content, title=None, notebook=None, tags=[], file_attachments=[]):
+        """Create a note and send to server.
+
+        @param content
+        @param title (optional) specifies note title.
+                    If omitted, note title will be generated automatically.
+        @param notebook (optional) name of notebook to store note.
+                    If omitted, use default notebook.
+                    @todo If does not exist, lazy create.
+        @param tags (optional) specify list of tags to tag note with.
+                    If tag does not exist, lazy create it.
+        @param file_attachments (optional) list of file attachments.
+        """
         note = Types.Note()
         note_body = self.note_header + content
         if title:
             note.title = title
+        else:
+            note.title = "Everpy Pro Generated note"
         if notebook:
             note.notebookGuid = self.note_book_dict[notebook]["guid"]
         if tags:
             note.tagNames = tags
-        if attachments:
-            resources = [self.get_resource(a) for a in attachments]
+        if file_attachments:
+            resources = [self.get_resource(a) for a in file_attachments]
             # Add Resource objects to note body
             note_body += "<br />" * 2
             note.resources = resources
@@ -241,14 +254,20 @@ class EverPyPro(EverPyExtras):
             section_title = raw_input("Section {0} title (q:quit)".format(i))
         self.create_note(note_content)
 
-    def simple_template2(self):
+    def create_template(self, template_file, notebook=None, title=None, tags=[], file_attachments=[]):
         """Create a simple note template.
 
-        This is experimental for now.
-        It should create a template then open that template for viewing
+        @param notebook (optional) name of notebook to store note.
+                    If omitted, use default notebook.
+                    @todo If does not exist, lazy create.
+        @param title (optional) specifies note title.
+                    If omitted, note title will be generated automatically.
+        @param tags (optional) specify list of tags to tag note with.
+                    If tag does not exist, lazy create it.
+        @param file_attachments (optional) list of file attachments.
         """
-        template = open("Templates/simple_sections.txt", "r").read()
-        template_tokens = everpy_utilities.get_template_tokens(template)
+        template = open(template_file, "r").read()
+        template_tokens = self.get_template_tokens(template)
 
         new_tokens = []
         another = ""
@@ -263,16 +282,39 @@ class EverPyPro(EverPyExtras):
             another = raw_input("Another (q:quit)")
 
         content = self.create_content_with_tokens(template, new_tokens)
-        print(content)
-        self.create_note(content, title="Test template")
-        # print(content)
-        # section_title = raw_input("Section {0} title (q:quit)".format(i))
-        # while(section_title != "q"):
-        #     note_content += template.replace("{{sectiontitle}}", section_title)
-        #     i += 1
-        #     section_title = raw_input("Section {0} title (q:quit)".format(i))
+        self.create_note(content, title=title, notebook=notebook, tags=tags, file_attachments=file_attachments)
+
+    def get_template_tokens(self, content):
+        """
+        Get the tokens from a template file.
+
+        @param content the content of the template file
+        @retval a tokenization of the template
+        """
+        regex = r"\$\{(\d+.*?)\}"
+        tokens = {}
+        matches = re.finditer(regex, content)
+        for match_num, match in enumerate(matches):
+            match_num = match_num + 1
+            tok = match.group(1)
+            print(tok)
+            tok_id, tok_name = None, None
+            if len(tok.split(":", 1)) == 2:
+                tok_id, tok_name = tok.split(":", 1)
+            else:
+                tok_id, tok_name = tok, None
+            tokens[tok_id] = {"name": tok_name, "val": None}
+        print(tokens)
+        return tokens
 
     def create_content_with_tokens(self, template, tokens):
+        """
+        Take a list of tokenizations and template file to create a full template.
+
+        @param template the contents of the template file
+        @param tokens the full list of tokens
+        @retval a string containing the note body of a template
+        """
         content = ""
         for token in tokens:
             temp_content = template

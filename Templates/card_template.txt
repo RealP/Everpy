@@ -1,0 +1,15 @@
+<div>
+    <div>
+        <div style="background-color: rgb(135, 133, 120); color: rgb(68, 68, 68);">
+            <div>
+                <div style="background-color:rgb(241, 241, 241);box-shadow:rgb(34, 34, 34) 0px 0px 10px;">
+                    <div>
+                        <div style="text-align: center"><span style="font-size: 19px;"><b>${1:Card title: }</b></span></div>
+                        <div>${2:Card content: }</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br/><br/><br/>
