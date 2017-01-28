@@ -18,6 +18,8 @@ python everpy_cli.py backup -dest "C:\Users\Paul\Desktop"
 Everpy pro
 python everpy_cli.py findandreplace -find "(?i)(evernote)" -replace "Evernote" -query "intitle:test"
 python everpy_cli.py deletenotebook -name "deletemebook"
+
+@todo Figure out how to deal with tags and file attachments from comamnd line
 """
 import argparse
 
@@ -102,6 +104,7 @@ def add_everpy_extra_cmds(sp):
 
 
 def add_everpypro_cmd(sp):
+    """Add the Everpy Pro commands."""
     ####################################################
     # create the parser for the "findandreplace" command
     fnr_parser = sp.add_parser(
@@ -139,6 +142,45 @@ def add_everpypro_cmd(sp):
         dest="name",
         required=True,
         help="Name of the notebook to delete"
+    )
+    ####################################################
+
+
+    ####################################################
+    # create the parser for the "template" command
+    tem_parser = sp.add_parser(
+        'template',
+        help='Create a template from an Everpy template file.'
+    )
+    tem_parser.add_argument(
+        "-file",
+        dest="template_file",
+        required=True,
+        help="Path to the template file"
+    )
+    tem_parser.add_argument(
+        "-notebook",
+        dest="notebook",
+        default=None,
+        help="Name of the notebook to save template"
+    )
+    tem_parser.add_argument(
+        "-title",
+        dest="title",
+        default=None,
+        help="The notes title"
+    )
+    tem_parser.add_argument(
+        "-tags",
+        dest="tags",
+        default=None,
+        help="tags"
+    )
+    tem_parser.add_argument(
+        "-attachments",
+        dest="attachments",
+        default=None,
+        help="attachments"
     )
     ####################################################
 
@@ -218,6 +260,20 @@ def main():
             cmd_line_args.find,
             cmd_line_args.repl,
             cmd_line_args.query
+        )
+    elif cmd_line_args.option == "findandreplace":
+        my_evernote.find_and_replace(
+            cmd_line_args.find,
+            cmd_line_args.repl,
+            cmd_line_args.query
+        )
+    elif cmd_line_args.option == "template":
+        my_evernote.create_template(
+            cmd_line_args.template_file,
+            notebook=cmd_line_args.notebook,
+            title=cmd_line_args.title,
+            tags=cmd_line_args.tags,
+            file_attachments=cmd_line_args.attachments
         )
     else:
         pass

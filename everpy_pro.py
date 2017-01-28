@@ -297,14 +297,14 @@ class EverPyPro(EverPyExtras):
         for match_num, match in enumerate(matches):
             match_num = match_num + 1
             tok = match.group(1)
-            print(tok)
             tok_id, tok_name = None, None
             if len(tok.split(":", 1)) == 2:
                 tok_id, tok_name = tok.split(":", 1)
             else:
                 tok_id, tok_name = tok, None
-            tokens[tok_id] = {"name": tok_name, "val": None}
-        print(tokens)
+            if tok_id not in tokens.keys():
+                tokens[tok_id] = {"name": tok_name, "val": None}
+        debug(tokens)
         return tokens
 
     def create_content_with_tokens(self, template, tokens):
@@ -318,12 +318,8 @@ class EverPyPro(EverPyExtras):
         content = ""
         for token in tokens:
             temp_content = template
-            print(token)
             for key, val in token.iteritems():
-                findval = "${" + key
-                if val["name"]:
-                    findval += ":" + val["name"]
-                findval += "}"
-                temp_content = temp_content.replace(findval, val["val"])
+                findval = "\$\{" + key + ".*?\}"
+                temp_content = re.sub(findval, val["val"], temp_content)
             content += temp_content
         return content
