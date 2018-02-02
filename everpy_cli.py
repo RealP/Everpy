@@ -212,7 +212,7 @@ def main():
     try:
         my_evernote = EverPyPro(dev_token, PATH_TO_ENSCRIPT)
     except:
-        everpy_utilities.refresh_token()
+        dev_token = everpy_utilities.refresh_token()
         my_evernote = EverPyPro(dev_token, PATH_TO_ENSCRIPT)
 
     ########################################################

@@ -77,7 +77,6 @@ class EverPyExtras(EverPy):
         tags with less than 3 notes and display that list. Then possibly use
         google to find related words and help suggest notes to tag with a specific tag.
 
-        @todo The crappy_note_title_query list should be customizable elsewhere.
         """
         untagged_notes_query = "-tag:*"
         crappy_note_title_query = [

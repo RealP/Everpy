@@ -8,6 +8,7 @@ UN = "everpy"
 
 def refresh_token():
     """Set new token."""
+    print("Set a new a token")
     keyring.set_password(UN, UN, getpass.getpass("Password: "))
     return keyring.get_password(UN, UN)
 
@@ -36,3 +37,9 @@ def get_template_tokens(content):
                 tok_id, tok_name = tok, None
             tokens[tok_id] = {"name": tok_name, "val": None}
     return tokens
+
+if __name__ == '__main__':
+
+    # Test methods
+    token = get_token()
+    print(token)
