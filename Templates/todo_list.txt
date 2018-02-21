@@ -1,0 +1,44 @@
+    <div style="text-align: center;">
+        <font style="font-size: 16pt;"><b>{date_title}</b></font>
+    </div>
+    <div>
+        <table style="border-collapse: collapse; min-width: 100%;">
+            <colgroup>
+                <col style="width: 50%;" />
+                <col style="width: 50%;" />
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td style="width: 50%; padding: 8px; border: 1px solid rgb(204, 204, 204);">
+                        <div style="text-align: center;">
+                            <font style="font-size: 12pt;"><b>Todo</b></font>
+                        </div>
+                    </td>
+                    <td style="width: 50%; padding: 8px; border: 1px solid rgb(204, 204, 204);">
+                        <div style="text-align: center;">
+                            <font style="font-size: 12pt;"><b>Done</b></font>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 50%; padding: 8px; border: 1px solid rgb(204, 204, 204);">
+                        <ul>
+                            <li>${1:item1}</li>
+                            <li>${2:item2}</li>
+                        </ul>
+                    </td>
+                    <td style="width: 50%; padding: 8px; border: 1px solid rgb(204, 204, 204);">
+                        <div>
+                            <ul>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <br/>
+    </div>

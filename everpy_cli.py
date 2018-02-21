@@ -178,6 +178,7 @@ def add_everpypro_cmd(sp):
     )
     tem_parser.add_argument(
         "-attachments",
+        nargs='+',
         dest="attachments",
         default=None,
         help="attachments"
