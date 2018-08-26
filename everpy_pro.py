@@ -108,7 +108,7 @@ class EverPyPro(EverPyExtras):
         for note in result_list.notes:
             new_note = self.note_store.getNote(note.guid, withContent, withResoucesData, withResoucesRecognition, withResoucesAlternateData)
             # Make a soup from the HTML part of the note
-            original_content = re.search("<en-note>((.|\n)+)<\/en-note>", new_note.content).group(1)
+            original_content = re.search(r"<en-note>((.|\n)+)<\/en-note>", new_note.content).group(1)
             soup = BeautifulSoup(original_content, "html.parser")
 
             original_matches = soup.findAll(text=re.compile(find_string))
@@ -319,7 +319,7 @@ class EverPyPro(EverPyExtras):
         for token in tokens:
             temp_content = template
             for key, val in token.iteritems():
-                findval = "\$\{" + key + ".*?\}"
+                findval = r"\$\{" + key + r".*?\}"
                 temp_content = re.sub(findval, val["val"], temp_content)
             content += temp_content
         return content

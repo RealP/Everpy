@@ -26,7 +26,7 @@ import argparse
 from everpy_pro import EverPyPro
 import everpy_utilities
 
-PATH_TO_ENSCRIPT = "C:\Program Files (x86)\Evernote\Evernote\ENScript.exe"
+PATH_TO_ENSCRIPT = r"C:\Program Files (x86)\Evernote\Evernote\ENScript.exe"
 
 
 def add_enscript_cmds(sp):
