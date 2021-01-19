@@ -68,7 +68,7 @@ class EverPyPro(EverPyExtras):
         notebooks = self.note_store.listNotebooks()
         for n in notebooks:
             self.note_book_dict[n.name] = {}
-            for key, val in vars(n).iteritems():
+            for key, val in vars(n).items():
                 self.note_book_dict[n.name][key] = val
 
     def get_tags(self):
@@ -274,7 +274,7 @@ class EverPyPro(EverPyExtras):
         while(another != "q"):
             # Why do i need to do this strange stuff with the dict to get it working?
             temp_dict = dict()
-            for token, token_content in template_tokens.iteritems():
+            for token, token_content in template_tokens.items():
                 temp_dict[token] = {}
                 temp_dict[token]["name"] = token_content["name"]
                 temp_dict[token]["val"] = raw_input("{0}: ".format(token_content["name"]))
@@ -318,7 +318,7 @@ class EverPyPro(EverPyExtras):
         content = ""
         for token in tokens:
             temp_content = template
-            for key, val in token.iteritems():
+            for key, val in token.items():
                 findval = r"\$\{" + key + r".*?\}"
                 temp_content = re.sub(findval, val["val"], temp_content)
             content += temp_content

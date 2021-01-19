@@ -110,11 +110,15 @@ class EverPyExtras(EverPy):
         os.mkdir(backup_folder)
         for notebook in notebooks:
             print("Backing up {0}".format(notebook))
-            EverPy.export_notes(
+            out, err = EverPy.export_notes(
                 self,
                 "notebook:\"{0}\"".format(notebook),
                 "{0}{1}{2}.enex".format(backup_folder, os.sep, notebook)
             )
+            if err:
+                print(err)
+                print("Failed")
+                return
 
     def automate_backup(self, query, backup_location, file_name, frequency, iterations):
         """

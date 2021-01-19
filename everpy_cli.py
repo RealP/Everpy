@@ -13,7 +13,7 @@ python everpy_cli.py export -query "intitle:\"En Scratch Paper\"" -file test.ene
 
 Everpy extras
 python everpy_cli.py managenotes
-python everpy_cli.py backup -dest "C:\Users\Paul\Desktop"
+python everpy_cli.py backup -dest "C:/Users/Paul/Desktop"
 
 Everpy pro
 python everpy_cli.py findandreplace -find "(?i)(evernote)" -replace "Evernote" -query "intitle:test"
@@ -22,11 +22,10 @@ python everpy_cli.py deletenotebook -name "deletemebook"
 @todo Figure out how to deal with tags and file attachments from comamnd line
 """
 import argparse
-
 from everpy_pro import EverPyPro
 import everpy_utilities
 
-PATH_TO_ENSCRIPT = r"C:\Program Files (x86)\Evernote\Evernote\ENScript.exe"
+PATH_TO_ENSCRIPT = "C:/Program Files (x86)/Evernote/Evernote/ENScript.exe"
 
 
 def add_enscript_cmds(sp):

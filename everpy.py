@@ -85,7 +85,7 @@ class EverPy(object):
             debug(out)
         if err:
             debug(err)
-        return out, err
+        return out.decode("utf-8"), err.decode("utf-8")
 
     def search_notes(self, query="any:"):
         """
